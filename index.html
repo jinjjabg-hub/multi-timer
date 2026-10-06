@@ -18,181 +18,245 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="멀티타이머">
 <style>
-/* 밝은 카드형 UI + 하단 탭. 포인트: 블루(진행), 앰버(경고/휴식) */
+/* 밝은 카드 + 주황(실행/강조) · 블루(보조/휴식) · 틸(성공). 둥근 모서리와 부드러운 그림자 */
 :root{
-  --bg:#f6f7fb;--card:#fff;--ink:#121a2d;--sub:#5b6880;--line:#e4e8f1;--chip:#e9eefb;
-  --blue:#2f6bff;--blue-ink:#fff;--amber:#e08a00;--red:#d92d20;
-  --t-orange:#ffe9e0;--t-blue:#e3ebff;--t-green:#dff7ec;--t-teal:#d9f6f3;--t-violet:#ece6ff;--t-gray:#eceff5;
-  --i-orange:#e8541a;--i-blue:#2f6bff;--i-green:#12915a;--i-teal:#0f8f86;--i-violet:#6b4fd8;--i-gray:#4a5a78;
-  --shadow:0 2px 10px rgba(20,30,60,.07);
+  --bg:#f6f7fd;--card:#fff;--ink:#0f1730;--sub:#5c6b8a;--line:#e6eaf5;--chip:#e6edff;
+  --pri:#ff5a1f;--pri-d:#e8450c;--pri-ink:#fff;--pri-soft:#ffe8de;
+  --blue:#2f6bff;--amber:#e08a00;--red:#d92d20;--teal:#0f9d8f;
+  --t-orange:#ffe6da;--t-blue:#e1eaff;--t-green:#d9f7e8;--t-teal:#d3f5f1;--t-violet:#ebe4ff;--t-gray:#eceff7;
+  --i-orange:#ff5a1f;--i-blue:#2f6bff;--i-green:#12915a;--i-teal:#0f8f86;--i-violet:#6b4fd8;--i-gray:#4a5a78;
+  --shadow:0 6px 22px rgba(30,45,90,.08);--ring:var(--pri)
 }
 @media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
-  --bg:#0b1020;--card:#141c33;--ink:#eaf0ff;--sub:#93a3c4;--line:#243052;--chip:#1c2748;
-  --blue:#5b8cff;--amber:#f5a524;--red:#ff6b5e;
+  --bg:#0a0f1f;--card:#131b33;--ink:#eef2ff;--sub:#93a3c4;--line:#243052;--chip:#1c2748;
+  --pri:#ff7a45;--pri-d:#ff6a30;--pri-ink:#1a0a02;--pri-soft:#3a2118;
+  --blue:#6f95ff;--amber:#f5a524;--red:#ff6b5e;--teal:#4fd4c8;
   --t-orange:#3a2118;--t-blue:#1b2a52;--t-green:#12301f;--t-teal:#10302e;--t-violet:#2a2150;--t-gray:#1d2540;
   --i-orange:#ff8a5c;--i-blue:#7fa3ff;--i-green:#4fd39a;--i-teal:#4fd4c8;--i-violet:#a28cff;--i-gray:#9fb0d0;--shadow:none}}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
 html,body{height:100%}
 body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Noto Sans KR","Malgun Gothic",sans-serif;
-  padding-bottom:calc(76px + env(safe-area-inset-bottom,0px));min-height:100dvh}
+  padding-bottom:calc(84px + env(safe-area-inset-bottom,0px));min-height:100dvh}
 button{font:inherit;color:inherit;cursor:pointer;border:0;background:none}
-input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:10px;padding:10px;width:100%;font-size:16px}
+input,select{font:inherit;color:var(--ink);background:var(--bg);border:1px solid var(--line);border-radius:12px;padding:11px;width:100%;font-size:16px}
 svg.i{width:1em;height:1em;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;vertical-align:-.12em}
 svg.i.f{fill:currentColor;stroke:none}
-.wrap{max-width:640px;margin:0 auto;padding:16px 16px 24px;display:flex;flex-direction:column;gap:14px}
+.top{position:sticky;top:0;z-index:6;background:color-mix(in srgb,var(--bg) 92%,transparent);backdrop-filter:blur(8px);
+  padding:calc(10px + env(safe-area-inset-top,0px)) 16px 10px}
+.top .in{max-width:640px;margin:0 auto;display:flex;align-items:center;gap:10px}
+.brand{display:flex;align-items:center;gap:10px;flex:1;font-size:20px;font-weight:800;letter-spacing:-.01em}
+.brand img{width:34px;height:34px;border-radius:10px}
+.iconbtn{width:42px;height:42px;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:grid;place-items:center;font-size:21px;color:var(--sub)}
+.iconbtn.on{color:var(--pri)}
+.wrap{max-width:640px;margin:0 auto;padding:6px 16px 24px;display:flex;flex-direction:column;gap:16px}
 h1{font-size:22px}h2{font-size:18px;display:flex;align-items:center;gap:8px}
+.eyebrow{font-size:11px;letter-spacing:.14em;color:var(--sub);font-weight:700}
 .sub{color:var(--sub);font-size:14px}
-.card{background:var(--card);border-radius:18px;padding:16px;box-shadow:var(--shadow);border:1px solid var(--line)}
-.pill{display:inline-block;font-size:12px;font-weight:700;border-radius:99px;padding:3px 9px;background:var(--chip);color:var(--blue)}
-.btn{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;font-weight:700;font-size:17px;text-align:center}
-.btn.pri{background:var(--blue);border-color:var(--blue);color:var(--blue-ink)}
-.btn.warn{background:var(--amber);border-color:var(--amber);color:#1a1300}
+.card{background:var(--card);border-radius:24px;padding:18px;box-shadow:var(--shadow)}
+.pill{display:inline-block;font-size:12px;font-weight:700;border-radius:99px;padding:3px 10px;background:var(--chip);color:var(--blue)}
+.pill.or{background:var(--pri-soft);color:var(--pri-d)}
+.btn{background:var(--card);box-shadow:var(--shadow);border-radius:18px;padding:15px;font-weight:700;font-size:17px;text-align:center}
+.btn.pri{background:var(--pri);color:var(--pri-ink);box-shadow:0 8px 20px color-mix(in srgb,var(--pri) 38%,transparent)}
+.btn.soft{background:var(--chip);color:var(--blue);box-shadow:none}
+.btn.warn{background:var(--pri);color:var(--pri-ink)}
 .btn.danger{color:var(--red)}
 .btn:disabled{opacity:.45}
 .row{display:flex;gap:10px}.row>*{flex:1}
-.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chips{display:flex;gap:8px;overflow-x:auto;padding:2px 0 4px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
-.chip{flex:none;background:var(--chip);color:var(--blue);border-radius:99px;padding:8px 14px;font-weight:700;font-size:14px}
-.chip.on{background:var(--blue);color:var(--blue-ink)}
+.chip{flex:none;background:var(--chip);color:var(--blue);border-radius:99px;padding:9px 16px;font-weight:700;font-size:14px}
+.chip.on{background:var(--pri);color:var(--pri-ink)}
 
-/* 하단 탭 */
-nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);border-top:1px solid var(--line);display:flex;justify-content:center;
-  padding-bottom:env(safe-area-inset-bottom,0px);z-index:5}
+nav{position:fixed;left:0;right:0;bottom:0;background:var(--card);box-shadow:0 -4px 18px rgba(30,45,90,.07);display:flex;justify-content:center;
+  padding-bottom:env(safe-area-inset-bottom,0px);z-index:5;border-radius:22px 22px 0 0}
 nav .in{display:flex;width:100%;max-width:640px}
-nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:10px 2px 9px;font-size:12px;color:var(--sub);font-weight:600}
-nav button svg{font-size:24px}
-nav button.on{color:var(--blue)}
-.page{display:none}.page.on{display:flex;flex-direction:column;gap:14px}
+nav button{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px;padding:11px 2px 10px;font-size:12px;color:var(--sub);font-weight:600}
+nav button svg{font-size:25px}
+nav button.on{color:var(--pri)}
+.page{display:none}.page.on{display:flex;flex-direction:column;gap:16px}
 
-/* 큰 시간 */
-.big{font-size:clamp(56px,17vw,110px);font-weight:800;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1.05}
-.big small{font-size:.4em;font-weight:700;color:var(--sub)}
+/* 스톱워치: 시계 + 디지털 */
+.dial{display:flex;flex-direction:column;align-items:center;gap:6px;padding:20px 14px 18px}
+.dial svg{width:min(76vw,52vh,320px);height:auto;overflow:visible}
+.face{fill:var(--card);stroke:var(--line);stroke-width:1.5}
+.tk{stroke:var(--sub);stroke-width:1;opacity:.55}.tk.m{stroke-width:2.2;opacity:.9}
+.arc{fill:none;stroke:var(--pri);stroke-width:5;stroke-linecap:round;transform:rotate(-90deg);transform-origin:100px 100px}
+.arcbg{fill:none;stroke:var(--chip);stroke-width:5}
+.hand{stroke:var(--pri);stroke-width:2.6;stroke-linecap:round;transform-origin:100px 100px}
+.cap{fill:var(--pri)}.cap2{fill:var(--card)}
+.big{font-size:clamp(40px,12.5vw,68px);font-weight:800;text-align:center;font-variant-numeric:tabular-nums;letter-spacing:-.02em;line-height:1.05}
+.big small{font-size:.52em;font-weight:800;color:var(--pri)}
+.status{font-size:12px;letter-spacing:.2em;font-weight:700;color:var(--sub)}
+.lapchip{background:var(--chip);color:var(--blue);border-radius:99px;padding:7px 14px;font-size:14px;font-weight:700;font-variant-numeric:tabular-nums}
+.circ{display:flex;justify-content:center;align-items:center;gap:22px}
+.cb{width:84px;height:84px;border-radius:50%;background:var(--chip);color:var(--blue);display:grid;place-items:center;font-weight:700;font-size:15px;line-height:1.2;text-align:center}
+.cb b{display:block;font-size:20px}
+.cb.go{width:112px;height:112px;background:var(--pri);color:var(--pri-ink);font-size:16px;box-shadow:0 12px 26px color-mix(in srgb,var(--pri) 42%,transparent)}
+.cb.go.going{background:var(--amber)}
+.cb:disabled{opacity:.45}
+.laps{display:flex;flex-direction:column}
+.lap{display:flex;align-items:center;gap:10px;padding:13px 4px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
+.lap:last-child{border:0}
+.lap .n{font-size:12px;letter-spacing:.1em;font-weight:700;color:var(--sub);min-width:62px}
+.lap .sp{flex:1;text-align:right}
+.lap b{font-size:20px}
+.badge{font-size:11px;font-weight:700;border-radius:99px;padding:2px 9px;margin-left:6px;letter-spacing:0}
+.badge.best{background:var(--t-teal);color:var(--i-teal)}.badge.worst{background:var(--t-orange);color:var(--i-orange)}
+.diff{font-size:13px;color:var(--sub)}.diff.up{color:var(--red)}
+.stat2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat2 b{display:block;font-size:22px;font-variant-numeric:tabular-nums;margin-top:4px}
+.stat2 .or{color:var(--pri-d)}
 
-/* 프리셋 카드 */
+/* 타이머/프리셋 카드 */
+.ringbig{position:relative;width:min(72vw,44vh,300px);aspect-ratio:1;margin:4px auto}
+.ringbig svg{width:100%;height:100%;transform:rotate(-90deg)}
+.ringbig circle{fill:none;stroke-width:12;stroke-linecap:round}
+.ringbig .bg{stroke:var(--chip)}.ringbig .fg{stroke:var(--pri)}
+.ringbig .mid{position:absolute;inset:11%;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.alarm{display:flex;align-items:center;gap:12px;background:var(--chip);border-radius:20px;padding:14px 16px;text-align:left}
+.alarm .tile{width:44px;height:44px;font-size:22px;background:var(--card);color:var(--blue)}
 .pcard{display:flex;gap:14px;align-items:center}
-.tile{flex:none;width:52px;height:52px;border-radius:14px;display:grid;place-items:center;font-size:26px}
+.tile{flex:none;width:54px;height:54px;border-radius:16px;display:grid;place-items:center;font-size:27px}
 .tone-orange{background:var(--t-orange);color:var(--i-orange)}.tone-blue{background:var(--t-blue);color:var(--i-blue)}
 .tone-green{background:var(--t-green);color:var(--i-green)}.tone-teal{background:var(--t-teal);color:var(--i-teal)}
 .tone-violet{background:var(--t-violet);color:var(--i-violet)}.tone-gray{background:var(--t-gray);color:var(--i-gray)}
 .pbody{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
 .pbody b{font-size:17px}
-.meta{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--sub)}
-.play{flex:none;width:46px;height:46px;border-radius:50%;background:var(--blue);color:var(--blue-ink);display:grid;place-items:center;font-size:22px}
-.edit{font-size:13px;color:var(--sub);padding:4px 6px}
-.badge{font-size:11px;font-weight:700;border-radius:99px;padding:2px 8px;margin-left:6px}
-.badge.best{background:var(--t-teal);color:var(--i-teal)}.badge.worst{background:var(--t-orange);color:var(--i-orange)}
-.diff{font-size:13px;color:var(--sub)}.diff.up{color:var(--red)}
-.stat2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.stat2 b{display:block;font-size:22px;font-variant-numeric:tabular-nums;margin-top:4px}
-.wbars{display:flex;gap:8px;align-items:flex-end;height:140px;margin-top:12px}
-.wbars .c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%;font-size:12px;color:var(--sub)}
-.wbars .b{width:100%;border-radius:12px;background:var(--chip);min-height:4px}
-.wbars .b.max{background:var(--blue)}.wbars .c.today{color:var(--ink);font-weight:700}
-.up-t{color:var(--i-green)}.dn-t{color:var(--red)}
-.addrow{display:flex;gap:8px;justify-content:center}
-.recent{display:flex;align-items:center;gap:12px;padding:12px 14px}
-.hero{background:linear-gradient(135deg,var(--t-blue),var(--card));}
+.meta{display:flex;gap:12px;flex-wrap:wrap;align-items:center;font-size:13px;color:var(--sub)}
+.play{flex:none;width:48px;height:48px;border-radius:50%;background:var(--pri);color:var(--pri-ink);display:grid;place-items:center;font-size:22px;box-shadow:0 6px 16px color-mix(in srgb,var(--pri) 36%,transparent)}
+.play.soft{background:var(--chip);color:var(--blue);box-shadow:none}
+.edit{font-size:13px;color:var(--blue);padding:2px 6px;font-weight:600}
+.hero{background:linear-gradient(135deg,var(--t-orange),var(--t-blue));display:flex;flex-direction:column;gap:10px}
+.hero b{font-size:21px}
+.hero .go{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.fab{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(98px + env(safe-area-inset-bottom,0px));z-index:4;background:var(--ink);color:var(--bg);border-radius:99px;padding:15px 24px;font-weight:700;font-size:16px;box-shadow:0 10px 26px rgba(10,20,50,.3);display:none;white-space:nowrap}
+.fab.show{display:block}
+.recent{display:flex;align-items:center;gap:12px;padding:14px}
 
-/* 스톱워치 랩 */
-.laps{display:flex;flex-direction:column}
-.lap{display:flex;justify-content:space-between;padding:10px 4px;border-bottom:1px solid var(--line);font-variant-numeric:tabular-nums}
-.lap:last-child{border:0}
+/* 기록 */
+.wbars{display:flex;gap:9px;align-items:flex-end;height:150px;margin-top:12px}
+.wbars .c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%;font-size:12px;color:var(--sub)}
+.wbars .b{width:100%;border-radius:99px;background:var(--t-orange);min-height:6px}
+.wbars .b.max{background:var(--pri)}.wbars .c.today{color:var(--ink);font-weight:800}.wbars .c.today .b{background:var(--blue)}
+.up-t{color:var(--i-green)}.dn-t{color:var(--red)}
+.setrow{display:flex;align-items:center;gap:12px;padding:10px 0}
+.setrow .tile{width:42px;height:42px;font-size:21px;border-radius:50%}
+.setrow .tx{flex:1}.setrow .tx b{display:block;font-size:16px}
+.sw{width:54px;height:32px;border-radius:99px;background:var(--line);position:relative;flex:none}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:26px;height:26px;border-radius:50%;background:#fff;box-shadow:0 1px 4px rgba(0,0,0,.25);transition:.15s}
+.sw.on{background:var(--pri)}.sw.on::after{left:25px}
+.bells{display:flex;gap:8px;flex-wrap:wrap;padding:2px 0 8px 54px}
+.hist .lap b{font-size:16px}
 
 /* 실행 화면 */
 .run{position:fixed;inset:0;background:var(--bg);z-index:20;display:none;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:20px;
   padding-top:calc(20px + env(safe-area-inset-top,0px));padding-bottom:calc(20px + env(safe-area-inset-bottom,0px))}
 .run.show{display:flex}
-.run.rest{--blue:var(--amber)}
-.run.end{background:var(--red);color:#fff}.run.end .sub{color:#ffe}
-.ring{position:relative;width:min(78vw,60vh,420px);aspect-ratio:1}
+.run.rest{--ring:var(--blue)}
+.run.end{background:var(--red);color:#fff}.run.end .sub{color:#fff}.run.end .ring .mid{background:rgba(255,255,255,.14);box-shadow:none}
+.ring{position:relative;width:min(80vw,56vh,440px);aspect-ratio:1}
 .ring svg{width:100%;height:100%;transform:rotate(-90deg)}
-.ring circle{fill:none;stroke-width:10;stroke-linecap:round}
-.ring .bg{stroke:var(--line)}.ring .fg{stroke:var(--blue);transition:stroke-dashoffset .2s linear}
-.ring .mid{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.ring circle{fill:none;stroke-width:9;stroke-linecap:round}
+.ring .bg{stroke:var(--chip)}.ring .fg{stroke:var(--ring);transition:stroke-dashoffset .2s linear}
+.run.end .ring .bg{stroke:rgba(255,255,255,.3)}.run.end .ring .fg{stroke:#fff}
+.ring .mid{position:absolute;inset:7%;border-radius:50%;background:var(--card);box-shadow:var(--shadow);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
 .ring .mid .big{font-size:clamp(48px,15vw,100px)}
 .run .row{width:min(92vw,520px)}
+.addrow{display:flex;gap:8px;justify-content:center}
 
 /* 모달 */
 .modal{position:fixed;inset:0;background:rgba(10,15,30,.55);z-index:30;display:none;align-items:center;justify-content:center;padding:14px}
 .modal.show{display:flex}
-.sheet{background:var(--card);border-radius:20px;width:100%;max-width:460px;max-height:92dvh;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
+.sheet{background:var(--card);border-radius:26px;width:100%;max-width:460px;max-height:92dvh;overflow:auto;padding:20px;display:flex;flex-direction:column;gap:12px}
 .sheet label{font-size:12px;color:var(--sub);display:block;margin-bottom:3px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.line{display:flex;gap:8px}.line .btn{white-space:nowrap}.line input{text-align:center;font-size:20px;letter-spacing:.15em}
+.line{display:flex;gap:8px}.line input{text-align:center;font-size:20px;letter-spacing:.15em}.line .btn{white-space:nowrap}
 .err{color:var(--red);font-size:14px;min-height:1.2em}
 a.btn{display:block;text-decoration:none;color:inherit}
-.setrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0}
-.sw{width:50px;height:30px;border-radius:99px;background:var(--line);position:relative;flex:none}
-.sw::after{content:"";position:absolute;top:3px;left:3px;width:24px;height:24px;border-radius:50%;background:#fff;transition:.15s}
-.sw.on{background:var(--blue)}.sw.on::after{left:23px}
+@media (min-width:900px){.wrap{max-width:720px}}
 </style>
 </head>
 <body>
+<header class="top"><div class="in">
+  <div class="brand"><img src="icon-192.png" alt="">멀티타이머</div>
+  <button class="iconbtn" id="hdrVib" aria-label="진동 켜기/끄기"><svg class="i" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="18" rx="2"/><path d="M4 8v8M20 8v8"/></svg></button>
+</div></header>
 
 <!-- 1. 스톱워치 -->
 <main class="wrap page on" id="p-sw">
-  <h1>스톱워치</h1>
-  <div class="card"><div class="big" id="swTime">00:00<small>.00</small></div></div>
-  <div class="row"><button class="btn" id="swLap" disabled>랩</button><button class="btn pri" id="swGo">시작</button><button class="btn" id="swReset">리셋</button></div>
+  <div class="card dial">
+    <svg viewBox="0 0 200 200" aria-hidden="true">
+      <circle class="face" cx="100" cy="100" r="96"/>
+      <g id="ticks"></g>
+      <circle class="arcbg" cx="100" cy="100" r="80"/>
+      <circle class="arc" id="swArc" cx="100" cy="100" r="80"/>
+      <g class="hand" id="swHand"><line x1="100" y1="112" x2="100" y2="24"/></g>
+      <circle class="cap" cx="100" cy="100" r="7"/><circle class="cap2" cx="100" cy="100" r="2.6"/>
+    </svg>
+    <div class="status" id="swStatus">READY</div>
+    <div class="big" id="swTime">00:00:00<small>.00</small></div>
+    <div class="lapchip" id="swChip">Lap 01 · 00:00.00</div>
+  </div>
+  <div class="circ"><button class="cb" id="swLap" disabled><span><b>랩</b>LAP</span></button><button class="cb go" id="swGo">시작</button><button class="cb" id="swReset"><span><b>↺</b>초기화</span></button></div>
   <div class="stat2" id="swStat" hidden></div>
-  <div class="card laps" id="swLaps" hidden></div>
+  <div class="card" id="swLapsCard" hidden><div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px"><h2>랩 기록 <span class="eyebrow">LAP TIMES</span></h2><span class="pill" id="swCount"></span></div><div class="laps" id="swLaps"></div></div>
 </main>
 
 <!-- 2. 타이머 -->
 <main class="wrap page" id="p-tm">
-  <h1>타이머</h1>
-  <div class="card"><div class="big" id="tmTime">05:00</div></div>
+  <div class="ringbig"><svg viewBox="0 0 120 120"><circle class="bg" cx="60" cy="60" r="54"/><circle class="fg" cx="60" cy="60" r="54" stroke-dasharray="339.3" stroke-dashoffset="0"/></svg>
+    <div class="mid"><span class="eyebrow">TIMER</span><div class="big" id="tmTime" style="font-size:clamp(44px,13vw,72px)">05:00</div></div></div>
   <div class="chips" id="tmChips"></div>
-  <div class="row"><button class="btn" data-a="-60">−1분</button><button class="btn" data-a="-10">−10초</button><button class="btn" data-a="10">+10초</button><button class="btn" data-a="60">+1분</button></div>
-  <button class="btn pri" id="tmGo">시작</button>
-  <h2 style="margin-top:6px">최근 타이머</h2>
-  <div id="recent" style="display:flex;flex-direction:column;gap:10px"></div>
+  <div class="row"><button class="btn soft" data-a="-60">−1분</button><button class="btn soft" data-a="-10">−10초</button><button class="btn soft" data-a="10">+10초</button><button class="btn soft" data-a="60">+1분</button></div>
+  <button class="alarm" id="tmAlarm"><div class="tile"><svg class="i" viewBox="0 0 24 24"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0"/></svg></div><div class="pbody"><b id="alText">알림음</b><span class="sub" id="alSub"></span></div></button>
+  <button class="btn pri" id="tmGo" style="font-size:20px;padding:18px">시작</button>
+  <h2 style="margin-top:4px">최근 타이머</h2>
+  <div id="recent" style="display:flex;flex-direction:column;gap:12px"></div>
 </main>
 
 <!-- 3. 프리셋 -->
 <main class="wrap page" id="p-ps">
-  <h1>프리셋</h1>
   <div class="chips" id="cats"></div>
-  <div id="plist" style="display:flex;flex-direction:column;gap:12px"></div>
-  <button class="btn pri" id="newPs">＋ 새 프리셋 만들기</button>
+  <div class="card hero" id="hero"></div>
+  <h2>저장된 루틴 <span class="pill" id="pcount"></span></h2>
+  <div id="plist" style="display:flex;flex-direction:column;gap:14px"></div>
 </main>
+<button class="fab" id="newPs">＋ 새 프리셋 만들기</button>
 
 <!-- 4. 발표 -->
 <main class="wrap page" id="p-pt">
-  <h1>발표 타이머</h1>
-  <p class="sub">여러 사람이 순서대로 발표할 때 쓰는 모드. 운영자는 폰에서 "다음 사람"만 누릅니다.</p>
-  <div class="card" style="display:flex;flex-direction:column;gap:10px">
+  <div><h1>발표 타이머</h1><p class="sub" style="margin-top:4px">여러 사람이 순서대로 발표할 때 쓰는 모드. 운영자는 폰에서 "다음 사람"만 누릅니다.</p></div>
+  <div class="card" style="display:flex;flex-direction:column;gap:12px">
     <h2>혼자 쓰기</h2><a class="btn pri" href="solo.html">단독 발표 타이머 열기</a>
   </div>
-  <div class="card" style="display:flex;flex-direction:column;gap:10px">
+  <div class="card" style="display:flex;flex-direction:column;gap:12px">
     <h2>운영자 (핸드폰)</h2>
     <button class="btn pri" id="newRoom">새 방 만들기</button>
-    <div class="line"><input id="opCode" inputmode="numeric" maxlength="6" placeholder="기존 방 코드"><button class="btn" id="opJoin">입장</button></div>
+    <div class="line"><input id="opCode" inputmode="numeric" maxlength="6" placeholder="기존 방 코드"><button class="btn soft" id="opJoin">입장</button></div>
   </div>
-  <div class="card" style="display:flex;flex-direction:column;gap:10px">
+  <div class="card" style="display:flex;flex-direction:column;gap:12px">
     <h2>발표자 화면 (태블릿)</h2>
-    <div class="line"><input id="dpCode" inputmode="numeric" maxlength="6" placeholder="방 코드"><button class="btn" id="dpJoin">입장</button></div>
+    <div class="line"><input id="dpCode" inputmode="numeric" maxlength="6" placeholder="방 코드"><button class="btn soft" id="dpJoin">입장</button></div>
   </div>
-  <div class="card" style="display:flex;flex-direction:column;gap:10px">
+  <div class="card" style="display:flex;flex-direction:column;gap:12px">
     <h2>보조 화면 (PPT 옆 작은 창)</h2>
-    <div class="line"><input id="miCode" inputmode="numeric" maxlength="6" placeholder="방 코드"><button class="btn" id="miJoin">입장</button></div>
+    <div class="line"><input id="miCode" inputmode="numeric" maxlength="6" placeholder="방 코드"><button class="btn soft" id="miJoin">입장</button></div>
   </div>
   <div class="err" id="ptErr"></div>
 </main>
 
 <!-- 5. 기록·설정 -->
 <main class="wrap page" id="p-st">
-  <h1>기록 · 설정</h1>
   <div class="card" id="week"></div>
+  <div class="card"><h2>최근 측정 내역</h2><div class="laps hist" id="hist" style="margin-top:8px"></div>
+    <button class="btn danger" id="histClear" style="margin-top:10px;width:100%" hidden>기록 지우기</button></div>
+  <h2 style="margin-top:4px">환경 설정</h2>
   <div class="card">
-    <div class="setrow"><span>소리</span><button class="sw" id="swSound" aria-label="소리"></button></div>
-    <div class="setrow"><span>진동</span><button class="sw" id="swVib" aria-label="진동"></button></div>
-    <div class="setrow"><span>시작 전 3·2·1 카운트다운</span><button class="sw" id="swCd" aria-label="카운트다운"></button></div>
-    <div class="setrow"><span>벨소리</span>
-      <div class="line" style="width:60%"><select id="bellSel"><option value="0">1. 차임</option><option value="1">2. 징</option><option value="2">3. 디지털</option><option value="3">4. 부저</option></select><button class="btn" id="bellPrev" style="padding:8px 12px">▶</button></div></div>
+    <div class="setrow"><div class="tile tone-blue"><svg class="i" viewBox="0 0 24 24"><path d="M4 9v6h4l5 4V5L8 9zM17 9a4 4 0 0 1 0 6"/></svg></div><div class="tx"><b>알림 사운드</b><span class="sub">타이머 완료 시 소리</span></div><button class="sw" id="swSound" aria-label="소리"></button></div>
+    <div class="bells" id="bells"></div>
+    <div class="setrow"><div class="tile tone-violet"><svg class="i" viewBox="0 0 24 24"><rect x="8" y="3" width="8" height="18" rx="2"/><path d="M4 8v8M20 8v8"/></svg></div><div class="tx"><b>진동</b><span class="sub">완료·구간 전환 시 진동</span></div><button class="sw" id="swVib" aria-label="진동"></button></div>
+    <div class="setrow"><div class="tile tone-orange"><svg class="i" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg></div><div class="tx"><b>카운트다운 3초 시작</b><span class="sub">시작 후 3, 2, 1 예비 신호</span></div><button class="sw" id="swCd" aria-label="카운트다운"></button></div>
   </div>
-  <div class="card"><h2>최근 기록</h2><div class="laps" id="hist" style="margin-top:8px"></div>
-    <button class="btn danger" id="histClear" style="margin-top:10px" hidden>기록 지우기</button></div>
 </main>
 
 <nav><div class="in" id="nav"></div></nav>
@@ -201,11 +265,11 @@ a.btn{display:block;text-decoration:none;color:inherit}
 <div class="run" id="run">
   <div class="sub" id="rName"></div>
   <div class="ring"><svg viewBox="0 0 120 120"><circle class="bg" cx="60" cy="60" r="54"/><circle class="fg" id="rFg" cx="60" cy="60" r="54"/></svg>
-    <div class="mid"><div class="pill" id="rLabel"></div><div class="big" id="rTime">00:00</div><div class="sub" id="rSet"></div></div></div>
+    <div class="mid"><div class="pill or" id="rLabel"></div><div class="big" id="rTime">00:00</div><div class="sub" id="rSet"></div></div></div>
   <div class="sub" id="rNext"></div>
   <div class="sub" id="rEnd"></div>
   <div class="addrow" id="rAdd"><button class="chip" data-add="60">+1분</button><button class="chip" data-add="300">+5분</button><button class="chip" data-add="600">+10분</button></div>
-  <div class="row"><button class="btn warn" id="rPause">일시정지</button><button class="btn" id="rSkip">건너뛰기</button><button class="btn" id="rStop">종료</button></div>
+  <div class="row"><button class="btn soft" id="rStop">종료</button><button class="btn" id="rSkip">건너뛰기</button><button class="btn warn" id="rPause">일시정지</button></div>
 </div>
 
 <!-- 프리셋 편집 -->
@@ -217,7 +281,7 @@ a.btn{display:block;text-decoration:none;color:inherit}
     <div><label>휴식 시간 (분)</label><input id="fRm" type="number" inputmode="numeric" min="0" value="5"></div><div><label>휴식 시간 (초)</label><input id="fRs" type="number" inputmode="numeric" min="0" max="59" value="0"></div></div>
   <div><label>세트 수</label><input id="fSets" type="number" inputmode="numeric" min="1" max="99" value="4"></div>
   <div class="err" id="fErr"></div>
-  <div class="row"><button class="btn" id="fCancel">취소</button><button class="btn danger" id="fDel" hidden>삭제</button><button class="btn pri" id="fSave">저장</button></div>
+  <div class="row"><button class="btn soft" id="fCancel">취소</button><button class="btn danger" id="fDel" hidden>삭제</button><button class="btn pri" id="fSave">저장</button></div>
 </div></div>
 
 <script type="module">
@@ -241,7 +305,11 @@ const P = {
   wind: '<path d="M3 8h11a3 3 0 1 0-3-3M3 12h16a3 3 0 1 1-3 3M3 16h8"/>',
   moon: '<path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z"/>',
   book: '<path d="M4 4h7a3 3 0 0 1 3 3v14a2 2 0 0 0-2-2H4zM20 4h-6M20 4v15h-6"/>',
-  play: '<path d="M8 5v14l11-7z"/>'
+  play: '<path d="M8 5v14l11-7z"/>',
+  bell: '<path d="M6 8a6 6 0 0 1 12 0c0 7 3 8 3 8H3s3-1 3-8M10 20a2 2 0 0 0 4 0"/>',
+  vib: '<rect x="8" y="3" width="8" height="18" rx="2"/><path d="M4 8v8M20 8v8"/>',
+  sound: '<path d="M4 9v6h4l5 4V5L8 9zM17 9a4 4 0 0 1 0 6"/>',
+  cd: '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>'
 };
 const ico = (n, fill) => `<svg class="i ${fill ? 'f' : ''}" viewBox="0 0 24 24">${P[n]}</svg>`;
 
@@ -252,6 +320,7 @@ function tab(k) {
   document.querySelectorAll('.page').forEach(p => p.classList.toggle('on', p.id === 'p-' + k));
   document.querySelectorAll('nav button').forEach(b => b.classList.toggle('on', b.dataset.k === k));
   if (k === 'st') renderHist();
+  $('newPs').classList.toggle('show', k === 'ps');
   window.scrollTo(0, 0);
 }
 $('nav').onclick = e => { const b = e.target.closest('button'); if (b) tab(b.dataset.k); };
@@ -269,27 +338,38 @@ const doRing = () => { if (S.sound) ring(S.bell); if (S.vib) vib(); };
 let sw = { run: false, base: 0, acc: 0, laps: [], lastLap: 0 }, swRaf = 0;
 const swNow = () => sw.acc + (sw.run ? performance.now() - sw.base : 0);
 const fmtSw = ms => { const t = Math.floor(ms / 10), c = t % 100, s = Math.floor(t / 100); return `${mmss(s).replace(/^(\d+:\d+).*/, '$1')}`.replace(/^/, '') + '.' + pad(c); };
-function swFmtParts(ms) { const t = Math.floor(ms / 10); const s = Math.floor(t / 100); const m = Math.floor(s / 60); return pad(m) + ':' + pad(s % 60) + '<small>.' + pad(t % 100) + '</small>'; }
-function swPaint() { $('swTime').innerHTML = swFmtParts(swNow()); if (sw.run) swRaf = requestAnimationFrame(swPaint); }
+const plain = ms => { const t = Math.floor(ms / 10); return pad(Math.floor(t / 6000)) + ':' + pad(Math.floor(t / 100) % 60) + '.' + pad(t % 100); };
+function swFmtParts(ms) { const t = Math.floor(ms / 10), s = Math.floor(t / 100); return pad(Math.floor(s / 3600)) + ':' + pad(Math.floor(s / 60) % 60) + ':' + pad(s % 60) + '<small>.' + pad(t % 100) + '</small>'; }
+const ARC = 2 * Math.PI * 80; $('swArc').style.strokeDasharray = ARC;
+$('ticks').innerHTML = [...Array(60)].map((_, i) => { const m = i % 5 === 0, a = i * 6 * Math.PI / 180, r1 = m ? 84 : 88, r2 = 93; return `<line class="tk ${m ? 'm' : ''}" x1="${100 + r1 * Math.sin(a)}" y1="${100 - r1 * Math.cos(a)}" x2="${100 + r2 * Math.sin(a)}" y2="${100 - r2 * Math.cos(a)}"/>`; }).join('');
+function swPaint() {
+  const ms = swNow(), secFrac = (ms % 60000) / 60000;
+  $('swTime').innerHTML = swFmtParts(ms);
+  $('swHand').style.transform = `rotate(${secFrac * 360}deg)`;
+  $('swArc').style.strokeDashoffset = ARC * (1 - secFrac);
+  $('swStatus').textContent = sw.run ? 'RUNNING' : ms > 0 ? 'PAUSED' : 'READY';
+  $('swChip').textContent = `Lap ${pad(sw.laps.length + 1)} · ${plain(ms - sw.lastLap)}`;
+  if (sw.run) swRaf = requestAnimationFrame(swPaint);
+}
 $('swGo').onclick = () => {
   if (sw.run) { sw.acc = swNow(); sw.run = false; cancelAnimationFrame(swRaf); wakeLock(false); }
   else { sw.base = performance.now(); sw.run = true; wakeLock(true); swPaint(); }
-  $('swGo').textContent = sw.run ? '정지' : '계속'; $('swGo').className = 'btn ' + (sw.run ? 'warn' : 'pri'); $('swLap').disabled = !sw.run; swPaint();
+  $('swGo').textContent = sw.run ? '정지' : '계속'; $('swGo').className = 'cb go' + (sw.run ? ' going' : ''); $('swLap').disabled = !sw.run; swPaint();
 };
 $('swLap').onclick = () => { const n = swNow(); sw.laps.unshift({ lap: n - sw.lastLap, total: n }); sw.lastLap = n; renderLaps(); };
-$('swReset').onclick = () => { sw = { run: false, base: 0, acc: 0, laps: [], lastLap: 0 }; cancelAnimationFrame(swRaf); wakeLock(false); $('swGo').textContent = '시작'; $('swGo').className = 'btn pri'; $('swLap').disabled = true; renderLaps(); swPaint(); };
-const plain = ms => { const t = Math.floor(ms / 10); return pad(Math.floor(t / 6000)) + ':' + pad(Math.floor(t / 100) % 60) + '.' + pad(t % 100); };
+$('swReset').onclick = () => { sw = { run: false, base: 0, acc: 0, laps: [], lastLap: 0 }; cancelAnimationFrame(swRaf); wakeLock(false); $('swGo').textContent = '시작'; $('swGo').className = 'cb go'; $('swLap').disabled = true; renderLaps(); swPaint(); };
 function renderLaps() {
   const L = sw.laps;
-  $('swLaps').hidden = $('swStat').hidden = !L.length;
+  $('swLapsCard').hidden = $('swStat').hidden = !L.length;
   if (!L.length) return;
   const min = Math.min(...L.map(l => l.lap)), max = Math.max(...L.map(l => l.lap)), avg = L.reduce((a, l) => a + l.lap, 0) / L.length;
-  $('swStat').innerHTML = `<div class="card"><span class="sub">평균 랩타임</span><b>${plain(avg)}</b></div><div class="card"><span class="sub">최고 랩</span><b>${plain(min)}</b></div>`;
+  $('swCount').textContent = `총 ${L.length}랩`;
+  $('swStat').innerHTML = `<div class="card"><span class="sub">평균 랩타임</span><b>${plain(avg)}</b></div><div class="card"><span class="sub">최고 랩</span><b class="or">${plain(min)}</b></div>`;
   $('swLaps').innerHTML = L.map((l, i) => {
     const prev = L[i + 1], d = prev ? l.lap - prev.lap : null;
     const badge = L.length > 1 && l.lap === min ? '<span class="badge best">최고 랩</span>' : L.length > 1 && l.lap === max ? '<span class="badge worst">최저 랩</span>' : '';
     const dd = d === null ? '' : `<span class="diff ${d > 0 ? 'up' : ''}">${d > 0 ? '+' : '−'}${(Math.abs(d) / 1000).toFixed(2)}s</span>`;
-    return `<div class="lap"><span>랩 ${L.length - i}${badge}</span>${dd}<b>${plain(l.lap)}</b></div>`;
+    return `<div class="lap"><span class="n">LAP ${pad(L.length - i)}</span>${badge}<span class="sp">${dd}</span><b>${plain(l.lap)}</b></div>`;
   }).join('');
 }
 
@@ -297,15 +377,18 @@ function renderLaps() {
 const QUICK = [60, 180, 300, 600, 900, 1800];
 function tmPaint() {
   $('tmTime').textContent = mmss(S.tmSec);
-  renderRecent();
+  renderRecent(); paintAlarm();
   $('tmChips').innerHTML = QUICK.map(q => `<button class="chip ${q === S.tmSec ? 'on' : ''}" data-s="${q}">${dur(q)}</button>`).join('');
 }
 $('tmChips').onclick = e => { const b = e.target.closest('[data-s]'); if (b) { S.tmSec = +b.dataset.s; save(); tmPaint(); } };
 document.querySelectorAll('#p-tm [data-a]').forEach(b => b.onclick = () => { S.tmSec = Math.min(86399, Math.max(5, S.tmSec + +b.dataset.a)); save(); tmPaint(); });
 $('tmGo').onclick = () => startTimer(S.tmSec);
 function startTimer(sec) { S.tmSec = sec; openRun('타이머 ' + dur(sec), [{ label: '타이머', sec, cycle: 0 }], 1, { k: 'tm' + sec, t: 'tm', sec, name: '타이머 ' + dur(sec) }); tmPaint(); }
+const BELLN = ['차임', '징', '디지털', '부저'];
+function paintAlarm() { $('alText').textContent = '알림음: ' + BELLN[S.bell]; $('alSub').textContent = (S.sound ? '소리 켜짐' : '소리 꺼짐') + ' · ' + (S.vib ? '진동 켜짐' : '진동 꺼짐'); }
+$('tmAlarm').onclick = () => tab('st');
 function renderRecent() {
-  $('recent').innerHTML = S.recent.length ? S.recent.map((r, i) => `<div class="card recent"><div class="tile tone-gray">${ico('clock')}</div><div class="pbody"><b>${esc(r.name)}</b><span class="sub">${dur(r.total)}</span></div><button class="play" data-r="${i}" aria-label="다시 시작">${ico('play', 1)}</button></div>`).join('') : '<p class="sub">시작한 타이머가 여기에 모입니다.</p>';
+  $('recent').innerHTML = S.recent.length ? S.recent.map((r, i) => `<div class="card recent"><div class="tile tone-gray">${ico('clock')}</div><div class="pbody"><b>${esc(r.name)}</b><span class="sub">${dur(r.total)}</span></div><button class="play soft" data-r="${i}" aria-label="다시 시작">${ico('play', 1)}</button></div>`).join('') : '<p class="sub">시작한 타이머가 여기에 모입니다.</p>';
 }
 $('recent').onclick = e => {
   const b = e.target.closest('[data-r]'); if (!b) return;
@@ -338,6 +421,9 @@ function phasesOf(p) {
 function renderPresets() {
   $('cats').innerHTML = CATS.map(c => `<button class="chip ${c === cat ? 'on' : ''}" data-c="${c}">${c}</button>`).join('');
   const list = allPresets().filter(p => cat === '전체' || p.cat === cat);
+  $('pcount').textContent = list.length;
+  const rec = BUILTIN.find(p => p.id === 'pomo'), rt = phasesOf(rec).reduce((a, b) => a + b.sec, 0);
+  $('hero').innerHTML = `<div style="display:flex;justify-content:space-between"><span class="pill or">추천 루틴</span><span class="sub">총 ${dur(rt)} 집중</span></div><b>${esc(rec.name)}</b><span class="sub">${esc(rec.desc)} · ${rec.sets}세트</span><div class="go"><span class="sub">몰입도를 극대화하는 표준 집중 인터벌</span><button class="play" data-p="${rec.id}" aria-label="시작">${ico('play', 1)}</button></div>`;
   $('plist').innerHTML = list.map(p => {
     const ph = phasesOf(p), total = ph.reduce((a, b) => a + b.sec, 0);
     return `<div class="card pcard"><div class="tile tone-${p.tone || 'gray'}">${ico(p.icon || 'clock')}</div>
@@ -348,6 +434,7 @@ function renderPresets() {
   }).join('') || '<p class="sub">이 분류에는 프리셋이 없습니다.</p>';
 }
 $('cats').onclick = e => { const b = e.target.closest('[data-c]'); if (b) { cat = b.dataset.c; renderPresets(); } };
+$('hero').onclick = e => { const b = e.target.closest('[data-p]'); if (b) { const p = BUILTIN.find(x => x.id === b.dataset.p); openRun(p.name, phasesOf(p), p.sets, { k: 'ps' + p.id, t: 'ps', id: p.id, name: p.name }); } };
 $('plist').onclick = e => {
   const pl = e.target.closest('[data-p]'), ed = e.target.closest('[data-e]');
   if (pl) { const p = allPresets().find(x => x.id === pl.dataset.p); openRun(p.name, phasesOf(p), p.sets, { k: 'ps' + p.id, t: 'ps', id: p.id, name: p.name }); }
@@ -440,13 +527,14 @@ $('rStop').onclick = () => { stopRing(); wakeLock(false); $('run').classList.rem
 
 /* ---------- 5. 기록·설정 ---------- */
 function paintSet() {
-  $('swCd').classList.toggle('on', S.cd); $('swSound').classList.toggle('on', S.sound); $('swVib').classList.toggle('on', S.vib); $('bellSel').value = S.bell;
+  paintAlarm(); $('hdrVib').classList.toggle('on', S.vib); $('bells').innerHTML = BELLN.map((n, i) => `<button class="chip ${i === S.bell ? 'on' : ''}" data-b="${i}">${i === S.bell ? '♪ ' : ''}${n}</button>`).join('');
+  $('swCd').classList.toggle('on', S.cd); $('swSound').classList.toggle('on', S.sound); $('swVib').classList.toggle('on', S.vib); 
 }
 $('swCd').onclick = () => { S.cd = !S.cd; save(); paintSet(); };
 $('swSound').onclick = () => { S.sound = !S.sound; save(); paintSet(); };
 $('swVib').onclick = () => { S.vib = !S.vib; save(); paintSet(); };
-$('bellSel').onchange = () => { S.bell = +$('bellSel').value; save(); };
-$('bellPrev').onclick = () => playBell(+$('bellSel').value);
+$('bells').onclick = e => { const b = e.target.closest('[data-b]'); if (!b) return; S.bell = +b.dataset.b; save(); paintSet(); unlock(); playBell(S.bell); };
+$('hdrVib').onclick = () => { S.vib = !S.vib; save(); paintSet(); if (S.vib) try { navigator.vibrate && navigator.vibrate(80); } catch (e) {} };
 function renderWeek() {
   const day = d => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(), t0 = day(new Date()), D = 864e5;
   const sum = (from, to) => S.hist.filter(h => h.at >= from && h.at < to);
