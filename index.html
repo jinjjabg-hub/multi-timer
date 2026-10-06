@@ -79,6 +79,18 @@ nav button.on{color:var(--blue)}
 .meta{display:flex;gap:12px;flex-wrap:wrap;font-size:13px;color:var(--sub)}
 .play{flex:none;width:46px;height:46px;border-radius:50%;background:var(--blue);color:var(--blue-ink);display:grid;place-items:center;font-size:22px}
 .edit{font-size:13px;color:var(--sub);padding:4px 6px}
+.badge{font-size:11px;font-weight:700;border-radius:99px;padding:2px 8px;margin-left:6px}
+.badge.best{background:var(--t-teal);color:var(--i-teal)}.badge.worst{background:var(--t-orange);color:var(--i-orange)}
+.diff{font-size:13px;color:var(--sub)}.diff.up{color:var(--red)}
+.stat2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat2 b{display:block;font-size:22px;font-variant-numeric:tabular-nums;margin-top:4px}
+.wbars{display:flex;gap:8px;align-items:flex-end;height:140px;margin-top:12px}
+.wbars .c{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:6px;height:100%;font-size:12px;color:var(--sub)}
+.wbars .b{width:100%;border-radius:12px;background:var(--chip);min-height:4px}
+.wbars .b.max{background:var(--blue)}.wbars .c.today{color:var(--ink);font-weight:700}
+.up-t{color:var(--i-green)}.dn-t{color:var(--red)}
+.addrow{display:flex;gap:8px;justify-content:center}
+.recent{display:flex;align-items:center;gap:12px;padding:12px 14px}
 .hero{background:linear-gradient(135deg,var(--t-blue),var(--card));}
 
 /* 스톱워치 랩 */
@@ -106,7 +118,7 @@ nav button.on{color:var(--blue)}
 .sheet{background:var(--card);border-radius:20px;width:100%;max-width:460px;max-height:92dvh;overflow:auto;padding:18px;display:flex;flex-direction:column;gap:12px}
 .sheet label{font-size:12px;color:var(--sub);display:block;margin-bottom:3px}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.line{display:flex;gap:8px}.line input{text-align:center;font-size:20px;letter-spacing:.15em}
+.line{display:flex;gap:8px}.line .btn{white-space:nowrap}.line input{text-align:center;font-size:20px;letter-spacing:.15em}
 .err{color:var(--red);font-size:14px;min-height:1.2em}
 a.btn{display:block;text-decoration:none;color:inherit}
 .setrow{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 0}
@@ -122,6 +134,7 @@ a.btn{display:block;text-decoration:none;color:inherit}
   <h1>스톱워치</h1>
   <div class="card"><div class="big" id="swTime">00:00<small>.00</small></div></div>
   <div class="row"><button class="btn" id="swLap" disabled>랩</button><button class="btn pri" id="swGo">시작</button><button class="btn" id="swReset">리셋</button></div>
+  <div class="stat2" id="swStat" hidden></div>
   <div class="card laps" id="swLaps" hidden></div>
 </main>
 
@@ -132,6 +145,8 @@ a.btn{display:block;text-decoration:none;color:inherit}
   <div class="chips" id="tmChips"></div>
   <div class="row"><button class="btn" data-a="-60">−1분</button><button class="btn" data-a="-10">−10초</button><button class="btn" data-a="10">+10초</button><button class="btn" data-a="60">+1분</button></div>
   <button class="btn pri" id="tmGo">시작</button>
+  <h2 style="margin-top:6px">최근 타이머</h2>
+  <div id="recent" style="display:flex;flex-direction:column;gap:10px"></div>
 </main>
 
 <!-- 3. 프리셋 -->
@@ -168,9 +183,11 @@ a.btn{display:block;text-decoration:none;color:inherit}
 <!-- 5. 기록·설정 -->
 <main class="wrap page" id="p-st">
   <h1>기록 · 설정</h1>
+  <div class="card" id="week"></div>
   <div class="card">
     <div class="setrow"><span>소리</span><button class="sw" id="swSound" aria-label="소리"></button></div>
     <div class="setrow"><span>진동</span><button class="sw" id="swVib" aria-label="진동"></button></div>
+    <div class="setrow"><span>시작 전 3·2·1 카운트다운</span><button class="sw" id="swCd" aria-label="카운트다운"></button></div>
     <div class="setrow"><span>벨소리</span>
       <div class="line" style="width:60%"><select id="bellSel"><option value="0">1. 차임</option><option value="1">2. 징</option><option value="2">3. 디지털</option><option value="3">4. 부저</option></select><button class="btn" id="bellPrev" style="padding:8px 12px">▶</button></div></div>
   </div>
@@ -186,6 +203,8 @@ a.btn{display:block;text-decoration:none;color:inherit}
   <div class="ring"><svg viewBox="0 0 120 120"><circle class="bg" cx="60" cy="60" r="54"/><circle class="fg" id="rFg" cx="60" cy="60" r="54"/></svg>
     <div class="mid"><div class="pill" id="rLabel"></div><div class="big" id="rTime">00:00</div><div class="sub" id="rSet"></div></div></div>
   <div class="sub" id="rNext"></div>
+  <div class="sub" id="rEnd"></div>
+  <div class="addrow" id="rAdd"><button class="chip" data-add="60">+1분</button><button class="chip" data-add="300">+5분</button><button class="chip" data-add="600">+10분</button></div>
   <div class="row"><button class="btn warn" id="rPause">일시정지</button><button class="btn" id="rSkip">건너뛰기</button><button class="btn" id="rStop">종료</button></div>
 </div>
 
@@ -205,7 +224,7 @@ a.btn{display:block;text-decoration:none;color:inherit}
 import { unlock, beep, playBell, ring, stopRing, vib, wakeLock, esc } from './audio.js';
 const $ = id => document.getElementById(id);
 const KEY = 'multitimer.app.v1';
-let S = { sound: true, vib: true, bell: 0, tmSec: 300, presets: [], hist: [] };
+let S = { sound: true, vib: true, cd: true, bell: 0, tmSec: 300, presets: [], hist: [], recent: [] };
 try { Object.assign(S, JSON.parse(localStorage.getItem(KEY)) || {}); } catch (e) {}
 const save = () => { try { localStorage.setItem(KEY, JSON.stringify(S)); } catch (e) {} };
 
@@ -259,20 +278,41 @@ $('swGo').onclick = () => {
 };
 $('swLap').onclick = () => { const n = swNow(); sw.laps.unshift({ lap: n - sw.lastLap, total: n }); sw.lastLap = n; renderLaps(); };
 $('swReset').onclick = () => { sw = { run: false, base: 0, acc: 0, laps: [], lastLap: 0 }; cancelAnimationFrame(swRaf); wakeLock(false); $('swGo').textContent = '시작'; $('swGo').className = 'btn pri'; $('swLap').disabled = true; renderLaps(); swPaint(); };
+const plain = ms => { const t = Math.floor(ms / 10); return pad(Math.floor(t / 6000)) + ':' + pad(Math.floor(t / 100) % 60) + '.' + pad(t % 100); };
 function renderLaps() {
-  $('swLaps').hidden = !sw.laps.length;
-  $('swLaps').innerHTML = sw.laps.map((l, i) => `<div class="lap"><span>랩 ${sw.laps.length - i}</span><span>${swFmtParts(l.lap).replace(/<[^>]+>/g, '')}</span><span class="sub">${swFmtParts(l.total).replace(/<[^>]+>/g, '')}</span></div>`).join('');
+  const L = sw.laps;
+  $('swLaps').hidden = $('swStat').hidden = !L.length;
+  if (!L.length) return;
+  const min = Math.min(...L.map(l => l.lap)), max = Math.max(...L.map(l => l.lap)), avg = L.reduce((a, l) => a + l.lap, 0) / L.length;
+  $('swStat').innerHTML = `<div class="card"><span class="sub">평균 랩타임</span><b>${plain(avg)}</b></div><div class="card"><span class="sub">최고 랩</span><b>${plain(min)}</b></div>`;
+  $('swLaps').innerHTML = L.map((l, i) => {
+    const prev = L[i + 1], d = prev ? l.lap - prev.lap : null;
+    const badge = L.length > 1 && l.lap === min ? '<span class="badge best">최고 랩</span>' : L.length > 1 && l.lap === max ? '<span class="badge worst">최저 랩</span>' : '';
+    const dd = d === null ? '' : `<span class="diff ${d > 0 ? 'up' : ''}">${d > 0 ? '+' : '−'}${(Math.abs(d) / 1000).toFixed(2)}s</span>`;
+    return `<div class="lap"><span>랩 ${L.length - i}${badge}</span>${dd}<b>${plain(l.lap)}</b></div>`;
+  }).join('');
 }
 
 /* ---------- 2. 타이머 ---------- */
 const QUICK = [60, 180, 300, 600, 900, 1800];
 function tmPaint() {
   $('tmTime').textContent = mmss(S.tmSec);
+  renderRecent();
   $('tmChips').innerHTML = QUICK.map(q => `<button class="chip ${q === S.tmSec ? 'on' : ''}" data-s="${q}">${dur(q)}</button>`).join('');
 }
 $('tmChips').onclick = e => { const b = e.target.closest('[data-s]'); if (b) { S.tmSec = +b.dataset.s; save(); tmPaint(); } };
 document.querySelectorAll('#p-tm [data-a]').forEach(b => b.onclick = () => { S.tmSec = Math.min(86399, Math.max(5, S.tmSec + +b.dataset.a)); save(); tmPaint(); });
-$('tmGo').onclick = () => openRun('타이머', [{ label: '타이머', sec: S.tmSec, cycle: 0 }], 1);
+$('tmGo').onclick = () => startTimer(S.tmSec);
+function startTimer(sec) { S.tmSec = sec; openRun('타이머 ' + dur(sec), [{ label: '타이머', sec, cycle: 0 }], 1, { k: 'tm' + sec, t: 'tm', sec, name: '타이머 ' + dur(sec) }); tmPaint(); }
+function renderRecent() {
+  $('recent').innerHTML = S.recent.length ? S.recent.map((r, i) => `<div class="card recent"><div class="tile tone-gray">${ico('clock')}</div><div class="pbody"><b>${esc(r.name)}</b><span class="sub">${dur(r.total)}</span></div><button class="play" data-r="${i}" aria-label="다시 시작">${ico('play', 1)}</button></div>`).join('') : '<p class="sub">시작한 타이머가 여기에 모입니다.</p>';
+}
+$('recent').onclick = e => {
+  const b = e.target.closest('[data-r]'); if (!b) return;
+  const r = S.recent[+b.dataset.r];
+  if (r.t === 'tm') startTimer(r.sec);
+  else { const p = allPresets().find(x => x.id === r.id); if (p) openRun(p.name, phasesOf(p), p.sets, { k: 'ps' + p.id, t: 'ps', id: p.id, name: p.name }); }
+};
 tmPaint();
 
 /* ---------- 3. 프리셋 ---------- */
@@ -310,7 +350,7 @@ function renderPresets() {
 $('cats').onclick = e => { const b = e.target.closest('[data-c]'); if (b) { cat = b.dataset.c; renderPresets(); } };
 $('plist').onclick = e => {
   const pl = e.target.closest('[data-p]'), ed = e.target.closest('[data-e]');
-  if (pl) { const p = allPresets().find(x => x.id === pl.dataset.p); openRun(p.name, phasesOf(p), p.sets); }
+  if (pl) { const p = allPresets().find(x => x.id === pl.dataset.p); openRun(p.name, phasesOf(p), p.sets, { k: 'ps' + p.id, t: 'ps', id: p.id, name: p.name }); }
   if (ed) openEditor(S.presets.find(x => x.id === ed.dataset.e));
 };
 renderPresets();
@@ -343,8 +383,11 @@ let R = null;
 const ticker = new Worker(URL.createObjectURL(new Blob(['setInterval(()=>postMessage(0),100)'])));
 ticker.onmessage = () => R && runTick();
 const CIRC = 2 * Math.PI * 54; $('rFg').style.strokeDasharray = CIRC;
-function openRun(name, phases, sets) {
+function openRun(name, phases, sets, src) {
   unlock(); wakeLock(true);
+  const total = phases.reduce((a, b) => a + b.sec, 0);
+  if (src) { S.recent = [{ ...src, total }, ...S.recent.filter(r => r.k !== src.k)].slice(0, 3); save(); renderRecent(); }
+  if (S.cd) phases = [{ label: '준비', sec: 3, cycle: 0, pre: true }, ...phases];
   R = { name, phases, sets, i: 0, paused: false, done: false, left: 0, endAt: 0, lastBeep: -1, t0: Date.now() };
   begin(0); $('run').classList.add('show'); runTick();
 }
@@ -355,7 +398,7 @@ function runTick() {
   const l = leftSec();
   if (!R.paused) {
     const c = Math.ceil(l);
-    if (c <= 3 && c >= 1 && c !== R.lastBeep && R.phases[R.i].sec > 5) { R.lastBeep = c; bp(.1, 700); }
+    if (c <= 3 && c >= 1 && c !== R.lastBeep && (R.phases[R.i].sec > 5 || R.phases[R.i].pre)) { R.lastBeep = c; bp(.1, 700); }
     if (l <= 0) { if (R.i + 1 < R.phases.length) { bp(.25, 988); if (S.vib) try { navigator.vibrate && navigator.vibrate(200); } catch (e) {} begin(R.i + 1); } else return finish(); }
   }
   paintRun();
@@ -366,7 +409,15 @@ function paintRun() {
   $('rName').textContent = R.name;
   $('rLabel').textContent = R.done ? '완료' : ph.label;
   $('rTime').textContent = R.done ? '00:00' : mmss(l);
-  $('rSet').textContent = R.sets > 1 ? `세트 ${ph.cycle + 1} / ${R.sets}` : '';
+  $('rSet').textContent = R.sets > 1 && !ph.pre ? `세트 ${ph.cycle + 1} / ${R.sets}` : '';
+  const real = R.phases.filter(p => !p.pre), tot = real.reduce((a, p) => a + p.sec, 0);
+  const doneSec = R.done ? tot : real.reduce((a, p, k) => a + (R.phases.indexOf(p) < R.i ? p.sec : 0), 0) + (ph.pre ? 0 : ph.sec - l);
+  const pct = tot ? Math.round(Math.min(1, doneSec / tot) * 100) : 0;
+  if (!ph.pre && !R.done) $('rLabel').textContent = ph.label + ' · ' + pct + '%';
+  const remain = R.phases.slice(R.i + 1).reduce((a, p) => a + p.sec, 0) + l;
+  const endT = new Date(Date.now() + remain * 1000);
+  $('rEnd').textContent = R.done ? '' : R.paused ? '일시정지 중' : '종료 예정 ' + pad(endT.getHours()) + ':' + pad(endT.getMinutes());
+  $('rAdd').hidden = R.done || ph.pre;
   $('rNext').textContent = R.done ? '수고하셨습니다' : nx ? `다음: ${nx.label} ${mmss(nx.sec)}` : '마지막 구간';
   $('rFg').style.strokeDashoffset = CIRC * (1 - (R.done ? 0 : l / ph.sec));
   $('rPause').textContent = R.paused ? '계속' : '일시정지';
@@ -375,23 +426,44 @@ function paintRun() {
 }
 function finish() {
   R.done = true; doRing();
-  S.hist.unshift({ name: R.name, sec: Math.round((Date.now() - R.t0) / 1000), at: Date.now() }); S.hist = S.hist.slice(0, 30); save();
+  S.hist.unshift({ name: R.name, sec: R.phases.filter(p => !p.pre).reduce((a, p) => a + p.sec, 0), at: Date.now() }); S.hist = S.hist.slice(0, 300); save();
   paintRun();
 }
 $('rPause').onclick = () => { if (R.paused) { R.endAt = Date.now() + R.left * 1000; R.paused = false; } else { R.left = leftSec(); R.paused = true; } paintRun(); };
 $('rSkip').onclick = () => { if (R.i + 1 < R.phases.length) begin(R.i + 1); else finish(); paintRun(); };
+$('rAdd').onclick = e => {
+  const b = e.target.closest('[data-add]'); if (!b || !R || R.done) return;
+  const n = +b.dataset.add, ph = R.phases[R.i]; ph.sec += n; R.lastBeep = -1;
+  if (R.paused) R.left += n; else R.endAt += n * 1000; paintRun();
+};
 $('rStop').onclick = () => { stopRing(); wakeLock(false); $('run').classList.remove('show', 'end'); R = null; };
 
 /* ---------- 5. 기록·설정 ---------- */
 function paintSet() {
-  $('swSound').classList.toggle('on', S.sound); $('swVib').classList.toggle('on', S.vib); $('bellSel').value = S.bell;
+  $('swCd').classList.toggle('on', S.cd); $('swSound').classList.toggle('on', S.sound); $('swVib').classList.toggle('on', S.vib); $('bellSel').value = S.bell;
 }
+$('swCd').onclick = () => { S.cd = !S.cd; save(); paintSet(); };
 $('swSound').onclick = () => { S.sound = !S.sound; save(); paintSet(); };
 $('swVib').onclick = () => { S.vib = !S.vib; save(); paintSet(); };
 $('bellSel').onchange = () => { S.bell = +$('bellSel').value; save(); };
 $('bellPrev').onclick = () => playBell(+$('bellSel').value);
+function renderWeek() {
+  const day = d => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(), t0 = day(new Date()), D = 864e5;
+  const sum = (from, to) => S.hist.filter(h => h.at >= from && h.at < to);
+  const cur = sum(t0 - 6 * D, t0 + D), prev = sum(t0 - 13 * D, t0 - 6 * D);
+  const mins = a => a.reduce((x, h) => x + h.sec, 0) / 60;
+  const days = [...Array(7)].map((_, i) => { const st = t0 - (6 - i) * D; return { d: new Date(st), m: mins(sum(st, st + D)) }; });
+  const mx = Math.max(1, ...days.map(x => x.m)), tot = mins(cur), pt = mins(prev);
+  const diff = pt > 0 ? Math.round((tot - pt) / pt * 100) : null;
+  const W = '일월화수목금토';
+  $('week').innerHTML = `<h2>주간 활동 요약 <span class="sub" style="font-weight:400;font-size:13px">최근 7일</span></h2>
+    <div class="stat2" style="margin-top:10px"><div><span class="sub">총 측정 시간</span><b>${Math.floor(tot / 60)}시간 ${Math.round(tot % 60)}분</b>${diff === null ? '' : `<span class="${diff >= 0 ? 'up-t' : 'dn-t'}" style="font-size:13px">전주 대비 ${diff >= 0 ? '+' : ''}${diff}%</span>`}</div>
+    <div><span class="sub">완료한 타이머</span><b>${cur.length}회</b></div></div>
+    <div class="wbars">${days.map((x, i) => `<div class="c ${i === 6 ? 'today' : ''}"><span>${Math.round(x.m)}</span><div class="b ${x.m === mx && x.m > 0 ? 'max' : ''}" style="height:${Math.max(3, x.m / mx * 100)}px"></div><span>${i === 6 ? '오늘' : W[x.d.getDay()]}</span></div>`).join('')}</div>`;
+}
 function renderHist() {
-  $('hist').innerHTML = S.hist.length ? S.hist.map(h => { const d = new Date(h.at); return `<div class="lap"><span>${esc(h.name)}</span><span>${dur(h.sec)}</span><span class="sub">${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}</span></div>`; }).join('') : '<p class="sub">아직 완료한 기록이 없습니다.</p>';
+  renderWeek();
+  $('hist').innerHTML = S.hist.length ? S.hist.slice(0, 20).map(h => { const d = new Date(h.at); return `<div class="lap"><span>${esc(h.name)}</span><span>${dur(h.sec)}</span><span class="sub">${d.getMonth() + 1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}</span></div>`; }).join('') : '<p class="sub">아직 완료한 기록이 없습니다.</p>';
   $('histClear').hidden = !S.hist.length;
 }
 $('histClear').onclick = () => { S.hist = []; save(); renderHist(); };
