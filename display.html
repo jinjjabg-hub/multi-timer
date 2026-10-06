@@ -14,7 +14,7 @@ body{display:flex;padding:clamp(8px,2vw,16px)}
 .msg{position:fixed;inset:0;background:rgba(11,20,38,.94);display:flex;flex-direction:column;gap:16px;align-items:center;justify-content:center;text-align:center;padding:24px;z-index:6;font-size:clamp(18px,3vw,28px)}
 .msg[hidden]{display:none}
 .popbtn button{font-size:14px;margin-left:8px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
-.popbtn{position:fixed;right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:4;opacity:.5}
+.popbtn{z-index:7!important;position:fixed;right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:4;opacity:.5}
 .popbtn:hover,.popbtn:focus{opacity:1}
 /* 보조 화면(작은 창) */
 .mini body{padding:4px}
