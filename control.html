@@ -37,7 +37,7 @@ label{font-size:12px;color:var(--sub);display:block;margin-bottom:3px}
 <div class="conn" id="conn">연결 끊김</div>
 <div class="top">
   <div><div class="small">방 코드</div><div class="code" id="code">------</div></div>
-  <div class="links"><button id="cpDisp">발표자 주소 복사</button><button id="cpMini">보조 주소 복사</button><button id="sndBtn">🔔 소리 켜짐</button><button id="setBtn">⚙ 설정</button></div>
+  <div class="links"><button id="cpDisp">발표자 주소 복사</button><button id="cpMini">보조 주소 복사</button><button id="openMini">보조 화면 열기</button><button id="sndBtn">🔔 소리 켜짐</button><button id="setBtn">⚙ 설정</button></div>
 </div>
 <div class="err" id="err"></div>
 <div class="slots" id="slots"></div>
@@ -156,6 +156,10 @@ function copy(text, btn) {
   const old = btn.textContent;
   (navigator.clipboard ? navigator.clipboard.writeText(text) : Promise.reject()).then(() => btn.textContent = '복사됨', () => prompt('주소를 복사하세요', text)).finally(() => setTimeout(() => btn.textContent = old, 1500));
 }
+$('openMini').onclick = () => {
+  const w = window.open(base + 'display.html?mini=1&room=' + code, 'multitimer-mini', 'popup=yes,width=360,height=220,left=40,top=40');
+  if (!w) fail('팝업이 차단되었습니다. 주소창 오른쪽의 팝업 허용을 눌러 주세요.');
+};
 $('cpDisp').onclick = e => copy(base + 'display.html?room=' + code, e.target);
 $('cpMini').onclick = e => copy(base + 'display.html?mini=1&room=' + code, e.target);
 
