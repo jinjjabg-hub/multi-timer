@@ -45,7 +45,7 @@ const q = new URLSearchParams(location.search);
 const MINI = q.get('mini') === '1';
 if (MINI) document.documentElement.classList.add('mini');
 let code = (q.get('room') || '').replace(/\D/g, '');
-let room = null, fromCache = false, offSince = 0, belledKey = '', warned = false;
+let room = null, fromCache = false, offSince = 0, belledKey = '', warned = false, prevRem = 0;
 
 if (!/^\d{6}$/.test(code)) { $('join').hidden = false;
   $('joinBtn').onclick = () => { const c = $('code').value.replace(/\D/g, ''); if (c.length === 6) { q.set('room', c); location.search = q.toString(); } };
@@ -79,7 +79,8 @@ function loop() {
   const isBell = running && rem <= 0;
   const isWarn = running && rem > 0 && sl.flagSec > 0 && rem <= sl.flagSec;
 
-  if (isBell && belledKey !== key) { belledKey = key; if (-rem < 3) { ring(room.bell); vib(); } }
+  if (isBell && belledKey !== key) { belledKey = key; if (prevRem > 0 || -rem < 3) { ring(room.bell); vib(); } }
+  prevRem = running ? rem : 0;
   if (!isBell && room.status !== 'running') { belledKey = ''; stopRing(); }
   if (isWarn && !warned) beep(.15, 880);
   warned = isWarn;

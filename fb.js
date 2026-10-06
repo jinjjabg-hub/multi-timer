@@ -29,6 +29,7 @@ export function login() {
 /* 서버 시간 보정: 기기 시계와 서버 시계의 차이(offset)를 재서 serverNow()에 반영 */
 let offset = 0;
 export const serverNow = () => Date.now() + offset;
+export const clockOffset = () => offset;
 export async function syncClock() {
   const user = await login();
   const ref = doc(db, 'pings', user.uid);

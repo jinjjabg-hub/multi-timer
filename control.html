@@ -44,6 +44,7 @@ label{font-size:12px;color:var(--sub);display:block;margin-bottom:3px}
 <div class="now" id="now"><div><div class="small" id="nslot"></div><b id="nname">-</b></div><div class="t" id="ntime">--:--</div></div>
 <div class="list" id="list"></div>
 <div class="two"><button class="btn amber" id="pause">일시정지</button><button class="btn" id="reset">리셋</button></div>
+<div class="small" id="diag" style="text-align:center"></div>
 <button class="btn go big" id="next">시작</button>
 
 <div class="modal" id="modal"><div class="sheet">
@@ -58,11 +59,11 @@ label{font-size:12px;color:var(--sub);display:block;margin-bottom:3px}
 </div></div>
 
 <script type="module">
-import { login, syncClock, watchRoom, patchRoom, startedStamp, remaining, serverNow } from './fb.js';
-import { fmt, esc, unlock, beep, ring, stopRing, vib, wakeLock } from './audio.js';
+import { login, syncClock, watchRoom, patchRoom, startedStamp, remaining, serverNow, clockOffset } from './fb.js';
+import { fmt, esc, unlock, beep, ring, stopRing, vib, wakeLock, audioState } from './audio.js';
 const $ = id => document.getElementById(id);
 const code = (new URLSearchParams(location.search).get('room') || '').replace(/\D/g, '');
-let belledKey = '', warned = false, soundOn = true;
+let belledKey = '', warned = false, soundOn = true, prevRem = 0;
 try { soundOn = localStorage.getItem('multitimer.sound') !== '0'; } catch (e) {}
 let room = null, uid = null, fromCache = false, offSince = 0;
 const fail = m => { $('err').style.display = 'block'; $('err').textContent = m; };
@@ -112,7 +113,9 @@ function loop() {
   if (!room) return;
   const rem = remaining(room), sl = room.slots[room.slotIndex], run = room.status === 'running';
   const key = room.startedMs + ':' + room.presenterIndex;
-  if (run && rem <= 0 && belledKey !== key) { belledKey = key; if (-rem < 3 && soundOn) { ring(room.bell); vib(); } }
+  if (run && rem <= 0 && belledKey !== key) { belledKey = key; if ((prevRem > 0 || -rem < 3) && soundOn) { ring(room.bell); vib(); } }
+  prevRem = run ? rem : 0;
+  $('diag').textContent = '소리: ' + audioState() + ' · 시계 오차: ' + Math.round(clockOffset()) + 'ms';
   if (!run) { belledKey = ''; stopRing(); }
   const warnNow = run && rem > 0 && sl.flagSec > 0 && rem <= sl.flagSec;
   if (warnNow && !warned && soundOn) beep(.15, 880);

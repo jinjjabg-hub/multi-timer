@@ -10,6 +10,7 @@ function tone(t0, f, d, type, vol) {
   g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(vol, t0 + .01); g.gain.exponentialRampToValueAtTime(.001, t0 + d);
   o.start(t0); o.stop(t0 + d + .05);
 }
+export const audioState = () => ac ? ac.state : '미해제';
 export function beep(d = .15, f = 880) { unlock(); if (ac) tone(ac.currentTime, f, d, 'sine', .25); }
 const BELLS = [
   t => [880, 1109, 1319].forEach((f, i) => tone(t + i * .18, f, .9, 'sine', .35)),
