@@ -1,0 +1,45 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedIn() { return request.auth != null; }
+
+    // 방 문서 검증 (필드·범위·크기)
+    function validRoom() {
+      let d = request.resource.data;
+      return d.keys().hasOnly(['ownerUid','slots','presenters','presenterIndex','slotIndex','status',
+                               'startedAt','runSec','pausedRemainingSec','bell','updatedAt','expireAt'])
+        && d.ownerUid is string
+        && d.slots is list && d.slots.size() == 4
+        && d.presenters is list && d.presenters.size() <= 60
+        && d.presenterIndex is int && d.presenterIndex >= 0 && d.presenterIndex < 60
+        && d.slotIndex is int && d.slotIndex >= 0 && d.slotIndex < 4
+        && d.status in ['idle', 'running', 'paused']
+        && d.bell is int && d.bell >= 0 && d.bell < 4
+        && d.runSec is number && d.runSec >= 0 && d.runSec <= 7200
+        && d.pausedRemainingSec is number && d.pausedRemainingSec >= 0 && d.pausedRemainingSec <= 7200
+        && (d.startedAt == null || d.startedAt is timestamp)
+        && d.updatedAt == request.time
+        && d.expireAt is timestamp;
+    }
+
+    match /rooms/{roomId} {
+      // 방 코드를 아는 로그인 사용자만 읽기 (목록 조회 금지)
+      allow get: if signedIn();
+      allow list: if false;
+      // 만든 사람(운영자)만 수정
+      allow create: if signedIn() && roomId.matches('^[0-9]{6}$')
+                    && request.resource.data.ownerUid == request.auth.uid && validRoom();
+      allow update: if signedIn() && resource.data.ownerUid == request.auth.uid
+                    && request.resource.data.ownerUid == resource.data.ownerUid && validRoom();
+      allow delete: if false;
+    }
+
+    // 서버 시간 보정용 (본인 문서만)
+    match /pings/{uid} {
+      allow read: if signedIn() && request.auth.uid == uid;
+      allow write: if signedIn() && request.auth.uid == uid
+                   && request.resource.data.keys().hasOnly(['t']) && request.resource.data.t == request.time;
+    }
+  }
+}
