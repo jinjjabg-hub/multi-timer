@@ -13,7 +13,8 @@ body{display:flex;padding:clamp(8px,2vw,16px)}
 .stage{flex:1}
 .msg{position:fixed;inset:0;background:rgba(11,20,38,.94);display:flex;flex-direction:column;gap:16px;align-items:center;justify-content:center;text-align:center;padding:24px;z-index:6;font-size:clamp(18px,3vw,28px)}
 .msg[hidden]{display:none}
-.popbtn{position:fixed;right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:4;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px;font-size:14px;opacity:.45}
+.popbtn button{font-size:14px;margin-left:8px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:8px 12px}
+.popbtn{z-index:7!important;position:fixed;right:calc(10px + env(safe-area-inset-right,0px));bottom:calc(10px + env(safe-area-inset-bottom,0px));z-index:4;opacity:.5}
 .popbtn:hover,.popbtn:focus{opacity:1}
 /* 보조 화면(작은 창) */
 .mini body{padding:4px}
@@ -29,7 +30,7 @@ body{display:flex;padding:clamp(8px,2vw,16px)}
 </style>
 </head>
 <body>
-<button class="popbtn" id="pop">작은 창으로 열기</button>
+<div class="popbtn" id="popbox"><button id="pip" hidden>📌 항상 위에 띄우기</button><button id="pop">작은 창으로 열기</button></div>
 <div class="conn" id="conn">연결 끊김</div>
 <div class="stage" id="stage">
   <div class="flag">🚩</div>
@@ -52,7 +53,11 @@ body{display:flex;padding:clamp(8px,2vw,16px)}
 <script type="module">
 import { login, syncClock, watchRoom, remaining } from './fb.js';
 import { unlock, beep, ring, stopRing, vib, wakeLock, fmt } from './audio.js';
-const $ = id => document.getElementById(id);
+const cache = {};
+const $ = id => cache[id] || (cache[id] = document.getElementById(id));
+['stage','slot','name','time','state','bar','conn','join','code','joinBtn','tap','tapMsg','tapBtn','pop','pip'].forEach($);
+/* 타이머 박자: 숨은 창에서도 느려지지 않도록 워커 사용 (PPT 뒤에 가려져도 벨이 정확히 울림) */
+const ticker = new Worker(URL.createObjectURL(new Blob(['setInterval(()=>postMessage(0),100)'])));
 const q = new URLSearchParams(location.search);
 const MINI = q.get('mini') === '1';
 if (MINI) document.documentElement.classList.add('mini');
@@ -74,18 +79,32 @@ async function start() {
       if (r) { room = r; if ($('tapBtn').hidden && !tapped) { $('tapMsg').textContent = '연결되었습니다'; $('tapBtn').hidden = false; } }
     }, e => { $('tapMsg').textContent = '연결 오류: ' + (e.code || e.message); });
   } catch (e) { $('tapMsg').textContent = '로그인 실패: ' + (e.code || e.message) + '  (Firebase 익명 로그인이 켜져 있는지 확인)'; }
-  requestAnimationFrame(loop);
 }
+ticker.onmessage = loop;
 $('pop').onclick = () => {
   const u = location.origin + location.pathname + '?mini=1&room=' + code;
   const w = window.open(u, 'multitimer-mini', 'popup=yes,width=360,height=220,left=40,top=40');
   if (!w) alert('팝업이 차단되었습니다. 주소창 오른쪽의 팝업 허용을 눌러 주세요.');
 };
+/* 항상 위(PiP): 크롬/엣지의 Document Picture-in-Picture. 다른 창보다 항상 위에 뜬다 */
+if ('documentPictureInPicture' in window) $('pip').hidden = false;
+$('pip').onclick = async () => {
+  try {
+    const pw = await documentPictureInPicture.requestWindow({ width: 360, height: 220 });
+    [...document.styleSheets].forEach(ss => {
+      try { const st = pw.document.createElement('style'); st.textContent = [...ss.cssRules].map(r => r.cssText).join('\n'); pw.document.head.appendChild(st); } catch (e) {}
+    });
+    pw.document.documentElement.classList.add('mini');
+    pw.document.title = '멀티타이머';
+    pw.document.body.append($('stage'), $('conn'));
+    pw.addEventListener('pagehide', () => { document.body.prepend($('stage'), $('conn')); });
+    pw.document.addEventListener('pointerdown', unlock);
+  } catch (e) { alert('이 브라우저에서는 사용할 수 없습니다 (크롬/엣지 최신 버전 필요)'); }
+};
 let tapped = false;
 $('tapBtn').onclick = () => { tapped = true; unlock(); wakeLock(true); $('tap').hidden = true; };
 
 function loop() {
-  requestAnimationFrame(loop);
   const online = navigator.onLine && !fromCache;
   if (online) offSince = 0; else if (!offSince) offSince = Date.now();
   $('conn').classList.toggle('show', !!offSince && Date.now() - offSince > 2000);
