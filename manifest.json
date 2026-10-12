@@ -4,8 +4,8 @@
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
-  "background_color": "#0b1426",
-  "theme_color": "#0f1b33",
+  "background_color": "#f6f7fd",
+  "theme_color": "#f6f7fd",
   "icons": [
     {
       "src": "icon-192.png",
@@ -24,6 +24,45 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "maskable"
+    }
+  ],
+  "id": "/multi-timer/",
+  "lang": "ko",
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
+  "description": "스톱워치, 타이머, 반복 루틴, 여러 사람이 차례로 발표하는 팀 타이머",
+  "shortcuts": [
+    {
+      "name": "스톱워치",
+      "url": "./index.html?tab=sw",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "타이머",
+      "url": "./index.html?tab=tm",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "프리셋",
+      "url": "./index.html?tab=ps",
+      "icons": [
+        {
+          "src": "icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
     }
   ]
 }

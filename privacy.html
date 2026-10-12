@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>멀티타이머 개인정보처리방침</title>
+<style>
+:root{--bg:#f6f7fd;--card:#fff;--ink:#0f1730;--sub:#5c6b8a;--line:#e6eaf5;--pri:#e8450c}
+@media (prefers-color-scheme:dark){:root{--bg:#0a0f1f;--card:#131b33;--ink:#eef2ff;--sub:#93a3c4;--line:#243052;--pri:#ff7a45}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.7 system-ui,-apple-system,"Noto Sans KR","Malgun Gothic",sans-serif;padding:20px 16px 48px}
+main{max-width:720px;margin:0 auto;background:var(--card);border-radius:20px;padding:24px 20px;border:1px solid var(--line)}
+h1{font-size:24px;margin:0 0 4px}h2{font-size:18px;margin:28px 0 8px}
+p,li{color:var(--ink)}.sub{color:var(--sub);font-size:14px}
+ul{padding-left:20px;margin:6px 0}
+table{border-collapse:collapse;width:100%;font-size:15px;display:block;overflow-x:auto}
+th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-align:top}
+th{background:var(--bg)}
+.todo{background:#fff3cd;color:#664d03;padding:1px 6px;border-radius:6px}
+a{color:var(--pri)}
+</style>
+</head>
+<body>
+<main>
+<h1>멀티타이머 개인정보처리방침</h1>
+<p class="sub">시행일: 2026년 10월 12일</p>
+
+<p>멀티타이머(이하 "앱")는 이용자의 개인정보를 최소한으로 다루며, 이름·이메일·전화번호 같은 개인 식별 정보를 요구하거나 수집하지 않습니다. 이 방침은 앱이 어떤 정보를 어디에 저장하는지 설명합니다.</p>
+
+<h2>1. 기기 안에만 저장되는 정보</h2>
+<p>스톱워치, 타이머, 프리셋, 발표 시간 설정, 완료 기록, 소리·진동 설정은 이용자 기기의 브라우저 저장소(localStorage)에만 저장됩니다. 개발자 서버로 전송되지 않으며, 앱 데이터를 지우거나 앱을 삭제하면 함께 삭제됩니다.</p>
+
+<h2>2. 발표 모드(방 코드)를 사용할 때</h2>
+<p>여러 기기를 연결하는 발표 모드를 사용할 때만 Google Firebase 서비스를 이용합니다.</p>
+<table>
+<tr><th>항목</th><th>내용</th><th>목적</th></tr>
+<tr><td>익명 식별자</td><td>Firebase 익명 로그인이 만드는 무작위 ID (이름·이메일과 연결되지 않음)</td><td>방 만든 기기만 타이머를 조작하도록 확인</td></tr>
+<tr><td>방 정보</td><td>6자리 방 코드, 슬롯 이름·시간 설정, 발표자 명단, 타이머 진행 상태</td><td>운영자·발표자·보조 화면 사이 동기화</td></tr>
+</table>
+<ul>
+<li>방 정보는 마지막 사용 후 24시간이 지나면 자동으로 삭제되도록 설정되어 있습니다.</li>
+<li>데이터는 Google Firebase(Firestore, 서울 리전 asia-northeast3)에 저장되며, 전송 구간은 암호화(HTTPS)됩니다.</li>
+<li>발표자 명단에 이용자가 직접 입력한 이름은 같은 방 코드로 입장한 사람에게 보입니다. 필요한 최소한의 이름(별칭 권장)만 입력해 주세요.</li>
+</ul>
+
+<h2>3. 수집하지 않는 정보</h2>
+<ul>
+<li>위치, 연락처, 사진, 마이크·카메라 정보</li>
+<li>광고 식별자, 광고 및 행동 분석 데이터 (앱에는 광고와 분석 도구가 없습니다)</li>
+</ul>
+
+<h2>4. 기기 기능 사용</h2>
+<ul>
+<li>진동: 타이머 종료 시 알림을 위해 사용합니다.</li>
+<li>화면 켜짐 유지: 타이머 실행 중 화면이 꺼지지 않게 하기 위해 사용합니다.</li>
+</ul>
+
+<h2>5. 제3자 제공</h2>
+<p>이용자 정보를 판매하거나 광고 목적으로 제3자에게 제공하지 않습니다. 발표 모드에서 사용하는 Google Firebase는 서비스 제공을 위한 처리자이며, Google의 개인정보처리방침이 함께 적용됩니다.</p>
+
+<h2>6. 아동</h2>
+<p>앱은 연령과 관계없이 사용할 수 있으나, 아동의 개인정보를 별도로 수집하지 않습니다.</p>
+
+<h2>7. 이용자의 권리와 삭제 요청</h2>
+<p>기기 안의 정보는 앱 설정의 "기록 지우기" 또는 앱 데이터 삭제로 직접 지울 수 있습니다. 발표 모드 데이터는 24시간 안에 자동 삭제되며, 그 전에 삭제를 원하면 아래 연락처로 방 코드를 알려 주세요.</p>
+
+<h2>8. 방침 변경</h2>
+<p>내용이 바뀌면 이 페이지에 변경 내용과 시행일을 게시합니다.</p>
+
+<h2>9. 문의</h2>
+<p>개인정보 관련 문의: <span class="todo">문의 이메일 주소를 입력하세요</span></p>
+</main>
+</body>
+</html>

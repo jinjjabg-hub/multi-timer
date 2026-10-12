@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "com.tm.multitimer",
+      "sha256_cert_fingerprints": ["여기에_Play_Console의_앱_서명_SHA-256_인증서_지문을_붙여넣기"]
+    }
+  }
+]
